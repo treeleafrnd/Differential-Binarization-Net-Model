@@ -18,7 +18,7 @@ Part of the code is inherited from MegReader.
     PyTorch == 1.2
     GCC >= 4.9 (This is important for PyTorch)
     CUDA >= 9.0 (10.1 is recommended)
-
+```
 # first, make sure that your conda is setup properly with the right environment
   # for that, check that `which conda`, `which pip` and `which python` points to the
   # right path. From a clean conda env, this is what you need to do
@@ -46,7 +46,7 @@ Part of the code is inherited from MegReader.
   echo $CUDA_HOME
   cd assets/ops/dcn/
   python setup.py build_ext --inplace
-  
+ ``` 
 # ALL OF THE PREREQUISITS ARE IMPLEMENTED IN DBNet.ipynb
 
 # MODEL
