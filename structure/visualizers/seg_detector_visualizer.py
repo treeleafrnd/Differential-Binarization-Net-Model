@@ -2,6 +2,7 @@ import cv2
 import concern.webcv2 as webcv2
 import numpy as np
 import torch
+from cropper import image_crop
 
 from concern.config import Configurable, State
 from data.processes.make_icdar_data import MakeICDARData
@@ -39,7 +40,6 @@ class SegDetectorVisualizer(Configurable):
             pred_image = pred_image.astype(np.uint8)
         return pred_image
 
-
     def single_visualize(self, batch, index, boxes, pred):
         image = batch['image'][index]
         polygons = batch['polygons'][index]
@@ -65,7 +65,7 @@ class SegDetectorVisualizer(Configurable):
             box = np.array(box).astype(np.int32).reshape(-1, 2)
             cv2.polylines(pred_canvas, [box], True, (0, 255, 0), 2)
             if isinstance(pred, dict) and 'thresh_binary' in pred:
-                cv2.polylines(thresh_binary, [box], True, (0, 255, 0), 1) 
+                cv2.polylines(thresh_binary, [box], True, (0, 255, 0), 1)
 
         if self.eager_show:
             webcv2.imshow(filename + ' output', cv2.resize(pred_canvas, (1024, 1024)))
@@ -84,9 +84,9 @@ class SegDetectorVisualizer(Configurable):
                 }
             else:
                 return {
-                filename + '_output': pred_canvas,
-                # filename + '_pred': thresh_binary
-            }
+                    filename + '_output': pred_canvas,
+                    # filename + '_pred': thresh_binary
+                }
 
     def demo_visualize(self, image_path, output):
         boxes, _ = output
@@ -95,20 +95,17 @@ class SegDetectorVisualizer(Configurable):
         original_shape = original_image.shape
         pred_canvas = original_image.copy().astype(np.uint8)
         pred_canvas = cv2.resize(pred_canvas, (original_shape[1], original_shape[0]))
-        i=0
+        image_crop(original_image=original_image, pred_canvas=pred_canvas, boxes=boxes)
+        i = 0
         for cnt in boxes:
-          i=i+1
-          rect = cv2.minAreaRect(np.int0(cnt))
-          box = cv2.boxPoints(rect)
-          box = np.int0(box)
-          [X, Y, W, H] = cv2.boundingRect(np.int0(cnt))
-          print([X,Y,W,H])
-          cropped_image = original_image[Y:Y+H, X:X+W]
-          cv2.imwrite(f'./demo_results/crops/contour{i}.png', cropped_image)
-          cv2.drawContours(pred_canvas, [box], 0, (0, 255, 0), 2)
-        #for box in boxes:
+            i = i + 1
+            rect = cv2.minAreaRect(np.int0(cnt))
+            box = cv2.boxPoints(rect)
+            box = np.int0(box)
+            image_crop(original_image=original_image, cnt=cnt, i=i)
+            cv2.drawContours(pred_canvas, [box], 0, (0, 255, 0), 2)
+        # for box in boxes:
         #    box = np.array(box).astype(np.int32).reshape(-1, 2)
         #    cv2.polylines(pred_canvas, [box], True, (0, 255, 0), 2)
 
         return pred_canvas
-
